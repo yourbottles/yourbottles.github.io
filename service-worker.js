@@ -1,15 +1,10 @@
-// YourBottle PWA Service Worker
-const CACHE_NAME = 'yourbottle-v1.0.3';
+// Yourbottles PWA Service Worker
+const CACHE_NAME = 'yourbottles-v1.0.3';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/styles/base.css',
-  '/styles/layout.css',
-  '/styles/components.css',
-  '/styles/responsive.css',
-  '/scripts/config.js',
-  '/scripts/utils.js',
-  '/scripts/core.js',
+  '/style.css',
+  '/script.js',
   '/manifest.json',
   'assets/icon.png'
 ];
@@ -113,7 +108,7 @@ self.addEventListener('sync', event => {
 // Push notifications (if implemented later)
 self.addEventListener('push', event => {
   const options = {
-    body: event.data ? event.data.text() : 'New update from YourBottle!',
+    body: event.data ? event.data.text() : 'New update from Yourbottles!',
     icon: 'assets/icon.png',
     badge: 'assets/icon.png',
     vibrate: [100, 50, 100],
@@ -136,7 +131,7 @@ self.addEventListener('push', event => {
   };
 
   event.waitUntil(
-    self.registration.showNotification('YourBottle', options)
+    self.registration.showNotification('Yourbottles', options)
   );
 });
 
@@ -164,4 +159,26 @@ function syncFormData() {
   // Send them to server
   // Clear after successful send
   return Promise.resolve();
+}
+
+// Periodic sync (if browser supports it)
+if ('periodicSync' in self.registration) {
+  self.addEventListener('periodicsync', event => {
+    if (event.tag === 'update-themes') {
+      event.waitUntil(updateThemesCache());
+    }
+  });
+}
+
+// Update themes cache periodically
+function updateThemesCache() {
+  return fetch('/api/themes')
+    .then(response => response.json())
+    .then(themes => {
+      // Update cache with new themes
+      return caches.open(CACHE_NAME)
+        .then(cache => {
+          // Cache logic here
+        });
+    });
 }
