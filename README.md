@@ -1,13 +1,13 @@
-# Yourbottles - The Best Custom Labels Producers
+# YourBottles - The Best Custom Labels Producers
 
-![Yourbottles Logo](assets/icon.png)
+![YourBottles Logo](assets/icon.png)
 
-**Live Website:** https://yourbottles.github.io
+**Live Website:** https://YourBottles.github.io
 
-Yourbottles is India's premier custom labels manufacturer, providing high-quality label printing and packaging solutions.
+YourBottles is India's premier custom labels manufacturer, providing high-quality label printing and packaging solutions.
 
 ## Contact
-- **Email:** yourbottlesindia@gmail.com
+- **Email:** yourbottleIndia@gmail.com
 - **Phone:** +91 6261491292
 - **Location:** Dubey Colony Padawa, Khandwa, MP India
 - **Specialty:** The Best Custom Labels Producers
@@ -25,4 +25,4 @@ Yourbottles is India's premier custom labels manufacturer, providing high-qualit
 - EmailJS for contact forms
 - Responsive Design
 
-© 2024 Yourbottles. All rights reserved.
+© 2024 YourBottles. All rights reserved.
