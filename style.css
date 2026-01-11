@@ -1104,7 +1104,7 @@ body {
     .theme-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-
+    
     .theme-image {
         height: 230px; /* Larger for tablet */
     }
@@ -1115,163 +1115,163 @@ body {
     .header {
         padding: 0.8rem 1rem;
     }
-
+    
     .logo {
         font-size: 1.3rem;
     }
-
+    
     .logo-icon {
         width: 30px;
         height: 30px;
     }
-
+    
     .tagline {
         font-size: 0.75rem;
         padding: 0.3rem 0.6rem;
     }
-
+    
     .hero {
         padding: 2rem 1rem;
     }
-
+    
     .hero-title {
         font-size: 1.8rem;
     }
-
+    
     .hero-subtitle {
         font-size: 0.9rem;
     }
-
+    
     .section-title {
         font-size: 1.6rem;
         margin-bottom: 1.5rem;
     }
-
+    
     .theme-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
     }
-
+    
     .theme-image {
         height: 200px; /* INCREASED for mobile */
     }
-
+    
     .theme-content {
         padding: 1rem;
         min-height: 160px;
     }
-
+    
     .theme-name {
         font-size: 1rem;
     }
-
+    
     .theme-desc {
         font-size: 0.8rem;
         margin-bottom: 0.6rem;
     }
-
+    
     .theme-features li {
         font-size: 0.75rem;
     }
-
+    
     .theme-buttons {
         flex-direction: row;
     }
-
+    
     .preview-btn-small,
     .btn-choose {
         font-size: 0.75rem;
         padding: 0.5rem;
     }
-
+    
     .about-section {
         padding: 1.5rem 1rem;
         margin: 2rem auto;
     }
-
+    
     .about-content h2 {
         font-size: 1.5rem;
     }
-
+    
     .about-features {
         grid-template-columns: 1fr;
         gap: 0.8rem;
     }
-
+    
     .stats {
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
         padding: 1.5rem 1rem;
         margin: 2rem auto;
     }
-
+    
     .stat-card {
         padding: 1rem;
     }
-
+    
     .stat-card i {
         font-size: 1.8rem;
     }
-
+    
     .stat-card h3 {
         font-size: 1.3rem;
     }
-
+    
     .chat-widget-section {
         padding: 0 1rem;
         margin-bottom: 2rem;
     }
-
+    
     .chat-widget-card {
         flex-direction: column;
         padding: 1.5rem;
         gap: 1.5rem;
         text-align: center;
     }
-
+    
     .chat-widget-icon i {
         font-size: 3rem;
     }
-
+    
     .chat-widget-content h3 {
         font-size: 1.5rem;
     }
-
+    
     .chat-widget-content p {
         font-size: 0.9rem;
     }
-
+    
     .chat-features {
         gap: 0.8rem;
     }
-
+    
     .chat-feature {
         padding: 0.5rem 0.8rem;
     }
-
+    
     .chat-widget-button {
         padding: 0.7rem 1.2rem;
         font-size: 0.9rem;
         width: 100%;
     }
-
+    
     .modal {
         padding: 1.2rem;
     }
-
+    
     .modal-header h2 {
         font-size: 1.4rem;
     }
-
+    
     .footer {
         padding: 1.5rem 1rem;
     }
-
+    
     .contact-info {
         flex-direction: column;
         gap: 0.8rem;
     }
-
+    
     .preview-container {
         max-width: 95%;
     }
@@ -1283,36 +1283,36 @@ body {
         grid-template-columns: 1fr;
         gap: 1rem;
     }
-
+    
     .hero-title {
         font-size: 1.6rem;
     }
-
+    
     .section-title {
         font-size: 1.4rem;
     }
-
+    
     .theme-image {
         height: 190px; /* Good size for small phones */
     }
-
+    
     .stats {
         grid-template-columns: 1fr;
     }
-
+    
     .chat-widget-card {
         padding: 1.2rem;
     }
-
+    
     .chat-widget-button {
         padding: 0.6rem 1rem;
         font-size: 0.85rem;
     }
-
+    
     .theme-buttons {
         flex-direction: column;
     }
-
+    
     .preview-btn-small,
     .btn-choose {
         width: 100%;
@@ -1326,11 +1326,11 @@ body {
     .pwa-install {
         display: none !important;
     }
-
+    
     .pwa-toast {
         display: none !important;
     }
-
+    
     body {
         padding-top: env(safe-area-inset-top);
         padding-bottom: env(safe-area-inset-bottom);
@@ -1343,7 +1343,7 @@ body {
         padding-left: min(0vmin, env(safe-area-inset-left));
         padding-right: min(0vmin, env(safe-area-inset-right));
     }
-
+    
     .header {
         padding-top: max(1rem, env(safe-area-inset-top));
     }
