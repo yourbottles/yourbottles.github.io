@@ -1,4 +1,4 @@
-// Yourbottles PWA Service Worker
+// BluePure PWA Service Worker
 const CACHE_NAME = 'yourbottles-v1.0.3';
 const urlsToCache = [
   '/',
@@ -108,7 +108,7 @@ self.addEventListener('sync', event => {
 // Push notifications (if implemented later)
 self.addEventListener('push', event => {
   const options = {
-    body: event.data ? event.data.text() : 'New update from Yourbottles!',
+    body: event.data ? event.data.text() : 'New update from BluePure!',
     icon: 'assets/icon.png',
     badge: 'assets/icon.png',
     vibrate: [100, 50, 100],
@@ -131,7 +131,7 @@ self.addEventListener('push', event => {
   };
 
   event.waitUntil(
-    self.registration.showNotification('Yourbottles', options)
+    self.registration.showNotification('BluePure', options)
   );
 });
 
