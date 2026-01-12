@@ -399,9 +399,6 @@ function createThemeCard(theme) {
 }
 
 // ============================================
-// PREVIEW MODAL FUNCTIONS
-// ============================================
-// ============================================
 // PREVIEW MODAL FUNCTIONS - FIXED VERSION
 // ============================================
 function openImagePreview(theme) {
@@ -417,131 +414,158 @@ function openImagePreview(theme) {
 
     // Check if image is available
     const hasImage = currentState.availableImages[theme.id];
+    const imgUrl = `assets/${theme.image}`;
+
+    // Set base dimensions (411x1600)
+    const baseWidth = 411;
+    const baseHeight = 1600;
+    const aspectRatio = baseWidth / baseHeight;
+
+    // Calculate viewport constraints (85% of viewport width, 70% of height)
+    const maxViewportWidth = window.innerWidth * 0.85;
+    const maxViewportHeight = window.innerHeight * 0.70;
+
+    let displayWidth, displayHeight;
+
+    // Calculate based on height first (tall image)
+    displayHeight = Math.min(maxViewportHeight, baseHeight);
+    displayWidth = displayHeight * aspectRatio;
+
+    // If too wide, recalculate based on width
+    if (displayWidth > maxViewportWidth) {
+        displayWidth = maxViewportWidth;
+        displayHeight = displayWidth / aspectRatio;
+    }
+
+    // Ensure minimum size for visibility
+    const minWidth = 250;
+    if (displayWidth < minWidth) {
+        displayWidth = minWidth;
+        displayHeight = displayWidth / aspectRatio;
+    }
+
+    console.log(`Displaying ${theme.name} at ${Math.round(displayWidth)}x${Math.round(displayHeight)} (${Math.round((displayWidth/baseWidth)*100)}% of original)`);
 
     if (hasImage) {
-        // Create a container with fixed aspect ratio (411:1600 ≈ 1:3.89)
-        const targetWidth = 411;  // Original width
-        const targetHeight = 1600; // Original height
-        const aspectRatio = targetWidth / targetHeight; // ≈ 0.2569
-        
-        // Calculate optimal display size based on viewport
-        const maxViewportHeight = window.innerHeight * 0.75; // 75% of viewport height
-        const maxViewportWidth = window.innerWidth * 0.90;  // 90% of viewport width
-        
-        // Calculate dimensions based on aspect ratio
-        let displayWidth, displayHeight;
-        
-        // First, try height-based calculation
-        displayHeight = Math.min(maxViewportHeight, targetHeight);
-        displayWidth = displayHeight * aspectRatio;
-        
-        // If width exceeds max width, use width-based calculation
-        if (displayWidth > maxViewportWidth) {
-            displayWidth = maxViewportWidth;
-            displayHeight = displayWidth / aspectRatio;
-        }
-        
-        // Ensure minimum size for visibility
-        const minWidth = 250;
-        const minHeight = minWidth / aspectRatio;
-        
-        if (displayWidth < minWidth) {
-            displayWidth = minWidth;
-            displayHeight = minHeight;
-        }
-        
-        console.log(`📏 Display size: ${Math.round(displayWidth)}x${Math.round(displayHeight)} (${Math.round((displayWidth/targetWidth)*100)}% of original)`);
-        
-        // Create preview with fixed aspect ratio container
+        // Create a loading spinner first
         dom.previewImage.innerHTML = `
-            <div class="preview-container" style="
-                width: ${displayWidth + 60}px;
-                max-width: 95vw;
-                height: ${displayHeight + 60}px;
-                max-height: 85vh;
+            <div class="preview-loading" style="
+                width: ${displayWidth}px;
+                height: ${displayHeight}px;
                 margin: 20px auto;
                 display: flex;
+                flex-direction: column;
                 align-items: center;
                 justify-content: center;
                 background: #f5f7fa;
                 border-radius: 15px;
-                padding: 30px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-                border: 2px solid #e2e8f0;
+                gap: 15px;
+                border: 2px dashed #3A8DFF;
             ">
-                <div class="preview-image-wrapper" style="
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    position: relative;
-                    overflow: hidden;
-                    border-radius: 10px;
-                    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-                    border: 2px solid white;
-                    background: white;
+                <div style="
+                    color: #3A8DFF;
+                    font-size: 2.5rem;
+                    animation: spin 1s linear infinite;
                 ">
-                    <img src="assets/${theme.image}" 
-                         alt="${theme.name}"
-                         style="
-                            width: 100%;
-                            height: 100%;
-                            object-fit: contain;
-                            display: block;
-                         ">
-                    
-                    <!-- Dimension overlay -->
-                    <div class="dimension-overlay" style="
-                        position: absolute;
-                        bottom: 10px;
-                        right: 10px;
-                        background: rgba(0,0,0,0.7);
-                        color: white;
-                        padding: 5px 10px;
-                        border-radius: 4px;
-                        font-size: 0.8rem;
-                        font-weight: bold;
-                    ">
-                        ${targetWidth} × ${targetHeight}
-                    </div>
+                    <i class="fas fa-spinner"></i>
                 </div>
+                <p style="
+                    margin: 0;
+                    color: #3A8DFF;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    text-align: center;
+                ">
+                    Loading 411 × 1600 Label<br>
+                    <span style="font-size: 0.9rem; color: #666; font-weight: normal;">
+                        Premium Quality Preview
+                    </span>
+                </p>
             </div>
         `;
 
-    } else {
-        // Fallback for missing image
-        const fallbackWidth = 300;
-        const fallbackHeight = fallbackWidth / (411/1600);
-        
-        dom.previewImage.innerHTML = `
-            <div class="preview-fallback" style="
-                width: ${fallbackWidth}px;
-                height: ${fallbackHeight}px;
-                margin: 30px auto;
-                background: ${theme.previewColor};
-                border-radius: 15px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: bold;
-                text-align: center;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                border: 2px solid rgba(255,255,255,0.3);
-                padding: 20px;
-            ">
-                <div>
-                    <div style="font-size: 1.2rem; margin-bottom: 10px;">${theme.name}</div>
-                    <div style="font-size: 0.9rem; opacity: 0.9;">
-                        411 × 1600 Label Preview
-                    </div>
-                    <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 10px;">
-                        (Image not available)
+        // Add spin animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Load the actual image
+        const img = new Image();
+        img.onload = function() {
+            // Create the final preview with the loaded image
+            dom.previewImage.innerHTML = `
+                <div class="preview-image-container" style="
+                    width: ${displayWidth + 40}px;
+                    max-width: 95%;
+                    height: ${displayHeight + 40}px;
+                    max-height: 75vh;
+                    margin: 10px auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #f5f7fa;
+                    border-radius: 15px;
+                    padding: 20px;
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                    border: 2px solid #e2e8f0;
+                ">
+                    <div class="preview-image-wrapper" style="
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: relative;
+                        overflow: hidden;
+                        border-radius: 10px;
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+                        border: 2px solid white;
+                        background: white;
+                    ">
+                        <img src="${imgUrl}" 
+                             alt="${theme.name}"
+                             style="
+                                width: 100%;
+                                height: 100%;
+                                object-fit: contain;
+                                display: block;
+                             ">
+                        
+                        <!-- Dimension overlay -->
+                        <div class="dimension-badge" style="
+                            position: absolute;
+                            bottom: 10px;
+                            right: 10px;
+                            background: rgba(0,0,0,0.7);
+                            color: white;
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                            font-size: 0.75rem;
+                            font-weight: bold;
+                            backdrop-filter: blur(10px);
+                        ">
+                            ${baseWidth} × ${baseHeight}
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+        };
+
+        img.onerror = function() {
+            console.log(`Failed to load image: ${imgUrl}`);
+            showFallbackPreview(theme, displayWidth, displayHeight);
+        };
+
+        img.src = imgUrl;
+
+    } else {
+        // Show fallback preview
+        showFallbackPreview(theme, displayWidth, displayHeight);
     }
 
     // Update features
@@ -556,39 +580,14 @@ function openImagePreview(theme) {
     // Show preview modal
     dom.imagePreviewModal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
-    // Add CSS for smooth image loading
-    const style = document.createElement('style');
-    style.textContent = `
-        .preview-container img {
-            transition: opacity 0.3s ease;
-        }
-        
-        .preview-container img[src] {
-            opacity: 1;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .preview-image-wrapper {
-            animation: fadeIn 0.5s ease;
-        }
-    `;
-    document.head.appendChild(style);
 }
 
-function showFallbackPreview(theme) {
-    const fallbackWidth = 300;
-    const fallbackHeight = fallbackWidth / (411/1600);
-    
+function showFallbackPreview(theme, displayWidth, displayHeight) {
     dom.previewImage.innerHTML = `
-        <div style="
-            width: ${fallbackWidth}px;
-            height: ${fallbackHeight}px;
-            margin: 30px auto;
+        <div class="preview-fallback" style="
+            width: ${displayWidth}px;
+            height: ${displayHeight}px;
+            margin: 20px auto;
             background: ${theme.previewColor};
             border-radius: 15px;
             display: flex;
@@ -597,31 +596,40 @@ function showFallbackPreview(theme) {
             justify-content: center;
             color: white;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
             padding: 20px;
             gap: 15px;
+            border: 2px solid rgba(255,255,255,0.3);
         ">
-            <div style="font-size: 3rem; opacity: 0.8;">
+            <div style="font-size: 2.5rem; opacity: 0.8;">
                 <i class="fas fa-image"></i>
             </div>
-            <div style="font-size: 1.2rem; font-weight: bold;">
+            <div style="font-size: 1.2rem; font-weight: bold; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">
                 ${theme.name}
             </div>
-            <div style="font-size: 0.9rem; opacity: 0.9;">
-                411 × 1600 Label
+            <div style="font-size: 0.9rem; opacity: 0.9; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 4px;">
+                411 × 1600 Label Preview
             </div>
             <div style="
                 font-size: 0.8rem;
                 opacity: 0.7;
                 background: rgba(255,255,255,0.1);
-                padding: 5px 10px;
+                padding: 4px 8px;
                 border-radius: 4px;
+                margin-top: 10px;
             ">
-                Preview image not available
+                Image preview not available
             </div>
         </div>
     `;
 }
+
+function closeImagePreview() {
+    currentState.isPreviewOpen = false;
+    dom.imagePreviewModal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
 // ============================================
 // FORM MANAGEMENT
 // ============================================
@@ -662,6 +670,7 @@ function hideForm() {
         document.body.style.overflow = 'auto';
     }
 }
+
 // ============================================
 // EVENT HANDLERS
 // ============================================
@@ -714,11 +723,13 @@ function setupEventListeners() {
     }
 
     // Close preview on outside click
-    dom.imagePreviewModal.addEventListener('click', function(e) {
-        if (e.target === dom.imagePreviewModal) {
-            closeImagePreview();
-        }
-    });
+    if (dom.imagePreviewModal) {
+        dom.imagePreviewModal.addEventListener('click', function(e) {
+            if (e.target === dom.imagePreviewModal) {
+                closeImagePreview();
+            }
+        });
+    }
 
     // Escape key to close preview
     document.addEventListener('keydown', function(e) {
