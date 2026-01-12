@@ -1134,3 +1134,22 @@ window.addEventListener('online', () => {
 
 window.addEventListener('offline', () => {
     showOfflineIndicator();
+    showToast('Offline mode', 3000);
+});
+
+// ============================================
+// STARTUP LOG
+// ============================================
+console.log(`
+%c===================================================
+       BLUEPURE - CUSTOM LABELS PRODUCER
+===================================================
+📍 Location: Dubey Colony Padawa, Khandwa MP India
+📧 Email: yourbottleIndia@gmail.com
+📞 Phone: +91 6261491292
+⭐ Rating: 9.3/10 Client Satisfaction
+🚀 Version: 2.4.0 (Large 411x1600 Image Preview)
+===================================================
+`,
+'color: #3A8DFF; font-weight: bold;'
+);
