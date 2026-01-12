@@ -398,7 +398,7 @@ function createThemeCard(theme) {
     return card;
 }
 
-// ============================================
+ // ============================================
 // PREVIEW MODAL FUNCTIONS
 // ============================================
 function openImagePreview(theme) {
@@ -407,107 +407,113 @@ function openImagePreview(theme) {
     currentState.selectedTheme = theme;
     currentState.isPreviewOpen = true;
 
-    // Update preview content with SMALLER text
+    // Update preview content with normal text size
     dom.previewTitle.textContent = `${theme.name} Preview`;
-    dom.previewTitle.style.fontSize = '1.2rem';
-    dom.previewTitle.style.marginBottom = '5px';
+    dom.previewTitle.style.fontSize = '';
+    dom.previewTitle.style.marginBottom = '';
     
     dom.previewThemeName.textContent = theme.name;
-    dom.previewThemeName.style.fontSize = '0.9rem';
-    dom.previewThemeName.style.color = '#666';
-    dom.previewThemeName.style.marginBottom = '3px';
+    dom.previewThemeName.style.fontSize = '';
+    dom.previewThemeName.style.color = '';
+    dom.previewThemeName.style.marginBottom = '';
     
     dom.previewDescription.textContent = theme.description;
-    dom.previewDescription.style.fontSize = '0.8rem';
-    dom.previewDescription.style.color = '#777';
-    dom.previewDescription.style.marginBottom = '10px';
+    dom.previewDescription.style.fontSize = '';
+    dom.previewDescription.style.color = '';
+    dom.previewDescription.style.marginBottom = '';
 
     // Check if image is available
     const hasImage = currentState.availableImages[theme.id];
 
-    // Create a temporary image to get natural dimensions
     if (hasImage) {
         const tempImg = new Image();
         tempImg.onload = function() {
             const naturalWidth = this.naturalWidth;
             const naturalHeight = this.naturalHeight;
             
-            // Calculate maximum dimensions - 75% of viewport for image area
-            const maxViewportWidth = window.innerWidth * 0.75;
-            const maxViewportHeight = window.innerHeight * 0.75;
+            // For 411x1600 images, we want to show them at a good size
+            // Let's calculate a comfortable display size
+            const targetWidth = 411;  // Your specified width
+            const targetHeight = 1600; // Your specified height
             
-            // Calculate scale to fit within viewport (3:4 ratio constraint)
-            const targetRatio = 3/4; // 3:4 aspect ratio
-            const imageRatio = naturalWidth / naturalHeight;
+            // Calculate maximum viewport dimensions we can use
+            const maxViewportHeight = window.innerHeight * 0.85; // 85% of viewport
+            const maxViewportWidth = window.innerWidth * 0.85;   // 85% of viewport
             
-            let displayWidth, displayHeight;
+            // Calculate scale based on height (since images are tall)
+            let scale = 1; // Start with original size
             
-            if (imageRatio > targetRatio) {
-                // Image is wider than 3:4 - constrain by width
-                displayWidth = Math.min(naturalWidth, maxViewportWidth);
-                displayHeight = displayWidth / imageRatio;
-            } else {
-                // Image is taller than 3:4 - constrain by height
-                displayHeight = Math.min(naturalHeight, maxViewportHeight);
-                displayWidth = displayHeight * imageRatio;
+            // If image is taller than viewport, scale it down
+            if (targetHeight > maxViewportHeight) {
+                scale = maxViewportHeight / targetHeight;
             }
             
-            // Apply 3:4 ratio if image is very different
-            const calculatedRatio = displayWidth / displayHeight;
-            if (Math.abs(calculatedRatio - targetRatio) > 0.2) {
-                // Adjust to be closer to 3:4
-                if (calculatedRatio > targetRatio) {
-                    // Too wide, reduce width
-                    displayWidth = displayHeight * targetRatio;
-                } else {
-                    // Too tall, reduce height
-                    displayHeight = displayWidth / targetRatio;
-                }
+            // Also check width
+            const scaledWidth = targetWidth * scale;
+            if (scaledWidth > maxViewportWidth) {
+                scale = maxViewportWidth / targetWidth;
             }
             
-            // Ensure it fits in viewport
-            if (displayWidth > maxViewportWidth) {
-                displayWidth = maxViewportWidth;
-                displayHeight = displayWidth / targetRatio;
-            }
-            if (displayHeight > maxViewportHeight) {
-                displayHeight = maxViewportHeight;
-                displayWidth = displayHeight * targetRatio;
+            // Apply minimum scale to ensure good visibility
+            const minScale = 0.5; // Don't go smaller than 50%
+            if (scale < minScale) {
+                scale = minScale;
             }
             
-            // Create preview container with LARGER image area
+            // Calculate final display dimensions
+            const displayWidth = targetWidth * scale;
+            const displayHeight = targetHeight * scale;
+            
+            // Add padding around the image (30px on all sides)
+            const containerWidth = displayWidth + 60; // 30px left + 30px right
+            const containerHeight = displayHeight + 60; // 30px top + 30px bottom
+            
+            // Create preview container with LARGE image and padding
             dom.previewImage.innerHTML = `
                 <div style="
-                    width: ${displayWidth}px;
-                    height: ${displayHeight}px;
-                    margin: 10px auto;
+                    width: ${containerWidth}px;
+                    height: ${containerHeight}px;
+                    margin: 20px auto;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: #f8f9fa;
-                    border-radius: 12px;
-                    overflow: hidden;
-                    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-                    border: 1px solid #e0e0e0;
+                    background: transparent;
+                    border-radius: 16px;
+                    overflow: visible;
+                    padding: 30px;
+                    position: relative;
                 ">
-                    <img src="assets/${theme.image}" 
-                         style="
-                            width: 100%;
-                            height: 100%;
-                            object-fit: contain;
-                            display: block;
-                         "
-                         alt="${theme.name}">
+                    <div style="
+                        width: ${displayWidth}px;
+                        height: ${displayHeight}px;
+                        position: relative;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                        border: 2px solid #fff;
+                    ">
+                        <img src="assets/${theme.image}" 
+                             style="
+                                width: 100%;
+                                height: 100%;
+                                object-fit: contain;
+                                display: block;
+                             "
+                             alt="${theme.name}">
+                    </div>
                 </div>
             `;
             
-            // Update features container to be more compact
-            dom.previewFeatures.style.fontSize = '0.8rem';
-            dom.previewFeatures.style.padding = '5px 0';
+            // Update features container
+            dom.previewFeatures.style.fontSize = '';
+            dom.previewFeatures.style.padding = '';
             
-            // Make select button smaller
-            dom.selectFromPreview.style.fontSize = '0.9rem';
-            dom.selectFromPreview.style.padding = '8px 16px';
+            // Make select button normal size
+            dom.selectFromPreview.style.fontSize = '';
+            dom.selectFromPreview.style.padding = '';
         };
         
         tempImg.onerror = function() {
@@ -517,34 +523,35 @@ function openImagePreview(theme) {
         
         tempImg.src = `assets/${theme.image}`;
         
-        // Show compact loading state
+        // Show loading state
         dom.previewImage.innerHTML = `
             <div style="
-                width: 250px;
-                height: 333px; /* 3:4 ratio */
-                margin: 15px auto;
+                width: 350px;
+                height: 550px;
+                margin: 20px auto;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                background: #f8f9fa;
-                border-radius: 12px;
-                gap: 15px;
-                border: 1px solid #e0e0e0;
+                background: #f5f7fa;
+                border-radius: 16px;
+                gap: 20px;
+                border: 2px dashed #3A8DFF;
             ">
                 <div style="
                     color: #3A8DFF;
-                    font-size: 2rem;
+                    font-size: 3rem;
                     animation: spin 1s linear infinite;
                 ">
                     <i class="fas fa-spinner"></i>
                 </div>
                 <p style="
                     margin: 0;
-                    color: #666;
-                    font-size: 0.9rem;
+                    color: #3A8DFF;
+                    font-size: 1.1rem;
+                    font-weight: 600;
                 ">
-                    Loading preview...
+                    Loading your label preview...
                 </p>
             </div>
         `;
@@ -560,18 +567,18 @@ function openImagePreview(theme) {
         document.head.appendChild(style);
         
     } else {
-        // Show gradient fallback
+        // Show gradient fallback at 411x1600 ratio
         showFallbackPreview(theme);
     }
 
-    // Update features with compact styling
+    // Update features with normal styling
     dom.previewFeatures.innerHTML = '';
     theme.features.forEach(feature => {
         const featureEl = document.createElement('span');
         featureEl.className = 'preview-feature';
-        featureEl.style.fontSize = '0.8rem';
-        featureEl.style.padding = '4px 8px';
-        featureEl.style.margin = '2px 4px';
+        featureEl.style.fontSize = '';
+        featureEl.style.padding = '';
+        featureEl.style.margin = '';
         featureEl.textContent = feature;
         dom.previewFeatures.appendChild(featureEl);
     });
@@ -582,31 +589,53 @@ function openImagePreview(theme) {
 }
 
 function showFallbackPreview(theme) {
+    // Create a fallback at 411x1600 ratio
+    const targetWidth = 411;
+    const targetHeight = 1600;
+    
+    // Scale for viewport
+    const maxViewportHeight = window.innerHeight * 0.85;
+    let scale = maxViewportHeight / targetHeight;
+    
+    // Ensure minimum scale
+    if (scale < 0.5) scale = 0.5;
+    
+    const displayWidth = targetWidth * scale;
+    const displayHeight = targetHeight * scale;
+    
     dom.previewImage.innerHTML = `
         <div style="
-            width: 300px;
-            height: 400px; /* 3:4 ratio */
-            margin: 15px auto;
-            background: ${theme.previewColor};
+            width: ${displayWidth + 60}px;
+            height: ${displayHeight + 60}px;
+            margin: 20px auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            background: transparent;
+            border-radius: 16px;
+            padding: 30px;
         ">
-            ${theme.name}
+            <div style="
+                width: ${displayWidth}px;
+                height: ${displayHeight}px;
+                background: ${theme.previewColor};
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 1.4rem;
+                font-weight: bold;
+                text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                border: 2px solid rgba(255,255,255,0.3);
+            ">
+                <div style="text-align: center; padding: 20px;">
+                    ${theme.name}
+                </div>
+            </div>
         </div>
     `;
-}
-
-function closeImagePreview() {
-    currentState.isPreviewOpen = false;
-    dom.imagePreviewModal.classList.remove('active');
-    document.body.style.overflow = 'auto';
 }
 
 // ============================================
