@@ -415,47 +415,105 @@ function openImagePreview(theme) {
     // Check if image is available
     const hasImage = currentState.availableImages[theme.id];
 
-    // Use <img> tag for better image control
-    dom.previewImage.innerHTML = `
-        <div style="
-            width: 100%;
-            max-height: 70vh;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: auto;
-            background: #f5f5f5;
-            border-radius: 8px;
-            padding: 20px;
-        ">
-            ${hasImage ? `
-            <img src="assets/${theme.image}" 
-                 style="
-                    max-width: 100%;
-                    max-height: 100%;
-                    object-fit: contain;
-                 "
-                 alt="${theme.name}">
-            ` : `
+    // Create a temporary image to get natural dimensions
+    if (hasImage) {
+        const tempImg = new Image();
+        tempImg.onload = function() {
+            const naturalWidth = this.naturalWidth;
+            const naturalHeight = this.naturalHeight;
+            
+            // Calculate maximum dimensions (70% of viewport for comfortable viewing)
+            const maxViewportWidth = window.innerWidth * 0.7;
+            const maxViewportHeight = window.innerHeight * 0.7;
+            
+            // Calculate scale to fit within viewport
+            const widthRatio = maxViewportWidth / naturalWidth;
+            const heightRatio = maxViewportHeight / naturalHeight;
+            const scale = Math.min(widthRatio, heightRatio, 1); // Don't scale up beyond 100%
+            
+            // Calculate display dimensions
+            const displayWidth = naturalWidth * scale;
+            const displayHeight = naturalHeight * scale;
+            
+            // Create preview container with exact image dimensions
+            dom.previewImage.innerHTML = `
+                <div style="
+                    width: ${displayWidth}px;
+                    height: ${displayHeight}px;
+                    margin: 20px auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #f8f9fa;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+                    border: 1px solid #e9ecef;
+                ">
+                    <img src="assets/${theme.image}" 
+                         style="
+                            width: 100%;
+                            height: 100%;
+                            object-fit: contain;
+                            display: block;
+                         "
+                         alt="${theme.name}">
+                </div>
+            `;
+        };
+        
+        tempImg.onerror = function() {
+            // If image fails to load, show gradient fallback
+            showFallbackPreview(theme);
+        };
+        
+        tempImg.src = `assets/${theme.image}`;
+        
+        // Show loading state
+        dom.previewImage.innerHTML = `
             <div style="
-                width: 100%;
-                height: 400px;
-                background: ${theme.previewColor};
+                width: 200px;
+                height: 300px;
+                margin: 40px auto;
                 display: flex;
+                flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                color: white;
-                font-size: 1.2rem;
-                font-weight: bold;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-                border-radius: 8px;
+                background: #f8f9fa;
+                border-radius: 12px;
+                gap: 20px;
             ">
-                ${theme.name}
+                <div style="
+                    color: #3A8DFF;
+                    font-size: 2rem;
+                    animation: spin 1s linear infinite;
+                ">
+                    <i class="fas fa-spinner"></i>
+                </div>
+                <p style="
+                    margin: 0;
+                    color: #6c757d;
+                    font-size: 1rem;
+                ">
+                    Loading preview...
+                </p>
             </div>
-            `}
-        </div>
-    `;
+        `;
+        
+        // Add spin animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+    } else {
+        // Show gradient fallback
+        showFallbackPreview(theme);
+    }
 
     // Update features
     dom.previewFeatures.innerHTML = '';
@@ -469,6 +527,28 @@ function openImagePreview(theme) {
     // Show preview modal
     dom.imagePreviewModal.classList.add('active');
     document.body.style.overflow = 'hidden';
+}
+
+function showFallbackPreview(theme) {
+    dom.previewImage.innerHTML = `
+        <div style="
+            width: 300px;
+            height: 400px;
+            margin: 20px auto;
+            background: ${theme.previewColor};
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        ">
+            ${theme.name}
+        </div>
+    `;
 }
 
 function closeImagePreview() {
@@ -951,7 +1031,7 @@ console.log(`
 📧 Email: yourbottleIndia@gmail.com
 📞 Phone: +91 6261491292
 ⭐ Rating: 9.3/10 Client Satisfaction
-🚀 Version: 2.3.0 (11 Themes)
+🚀 Version: 2.3.0 (11 Themes with Auto-Sized Preview)
 ===================================================
 `,
 'color: #3A8DFF; font-weight: bold;'
