@@ -401,19 +401,26 @@ function createThemeCard(theme) {
 // ============================================
 // PREVIEW MODAL FUNCTIONS
 // ============================================
-// ============================================
-// PREVIEW MODAL FUNCTIONS
-// ============================================
 function openImagePreview(theme) {
     if (!theme || !dom.imagePreviewModal) return;
 
     currentState.selectedTheme = theme;
     currentState.isPreviewOpen = true;
 
-    // Update preview content
+    // Update preview content with SMALLER text
     dom.previewTitle.textContent = `${theme.name} Preview`;
+    dom.previewTitle.style.fontSize = '1.2rem';
+    dom.previewTitle.style.marginBottom = '5px';
+    
     dom.previewThemeName.textContent = theme.name;
+    dom.previewThemeName.style.fontSize = '0.9rem';
+    dom.previewThemeName.style.color = '#666';
+    dom.previewThemeName.style.marginBottom = '3px';
+    
     dom.previewDescription.textContent = theme.description;
+    dom.previewDescription.style.fontSize = '0.8rem';
+    dom.previewDescription.style.color = '#777';
+    dom.previewDescription.style.marginBottom = '10px';
 
     // Check if image is available
     const hasImage = currentState.availableImages[theme.id];
@@ -425,34 +432,63 @@ function openImagePreview(theme) {
             const naturalWidth = this.naturalWidth;
             const naturalHeight = this.naturalHeight;
             
-            // Calculate maximum dimensions (65% of viewport for comfortable viewing)
-            const maxViewportWidth = window.innerWidth * 0.65;
-            const maxViewportHeight = window.innerHeight * 0.65;
+            // Calculate maximum dimensions - 75% of viewport for image area
+            const maxViewportWidth = window.innerWidth * 0.75;
+            const maxViewportHeight = window.innerHeight * 0.75;
             
-            // Calculate scale to fit within viewport
-            const widthRatio = maxViewportWidth / naturalWidth;
-            const heightRatio = maxViewportHeight / naturalHeight;
-            const scale = Math.min(widthRatio, heightRatio, 1); // Don't scale up beyond 100%
+            // Calculate scale to fit within viewport (3:4 ratio constraint)
+            const targetRatio = 3/4; // 3:4 aspect ratio
+            const imageRatio = naturalWidth / naturalHeight;
             
-            // Calculate display dimensions (add 40px padding inside container)
-            const displayWidth = (naturalWidth * scale) + 40; // Add padding
-            const displayHeight = (naturalHeight * scale) + 40; // Add padding
+            let displayWidth, displayHeight;
             
-            // Create preview container with padding around image
+            if (imageRatio > targetRatio) {
+                // Image is wider than 3:4 - constrain by width
+                displayWidth = Math.min(naturalWidth, maxViewportWidth);
+                displayHeight = displayWidth / imageRatio;
+            } else {
+                // Image is taller than 3:4 - constrain by height
+                displayHeight = Math.min(naturalHeight, maxViewportHeight);
+                displayWidth = displayHeight * imageRatio;
+            }
+            
+            // Apply 3:4 ratio if image is very different
+            const calculatedRatio = displayWidth / displayHeight;
+            if (Math.abs(calculatedRatio - targetRatio) > 0.2) {
+                // Adjust to be closer to 3:4
+                if (calculatedRatio > targetRatio) {
+                    // Too wide, reduce width
+                    displayWidth = displayHeight * targetRatio;
+                } else {
+                    // Too tall, reduce height
+                    displayHeight = displayWidth / targetRatio;
+                }
+            }
+            
+            // Ensure it fits in viewport
+            if (displayWidth > maxViewportWidth) {
+                displayWidth = maxViewportWidth;
+                displayHeight = displayWidth / targetRatio;
+            }
+            if (displayHeight > maxViewportHeight) {
+                displayHeight = maxViewportHeight;
+                displayWidth = displayHeight * targetRatio;
+            }
+            
+            // Create preview container with LARGER image area
             dom.previewImage.innerHTML = `
                 <div style="
                     width: ${displayWidth}px;
                     height: ${displayHeight}px;
-                    margin: 20px auto;
+                    margin: 10px auto;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     background: #f8f9fa;
-                    border-radius: 16px;
+                    border-radius: 12px;
                     overflow: hidden;
-                    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-                    border: 1px solid #e9ecef;
-                    padding: 20px;
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+                    border: 1px solid #e0e0e0;
                 ">
                     <img src="assets/${theme.image}" 
                          style="
@@ -460,11 +496,18 @@ function openImagePreview(theme) {
                             height: 100%;
                             object-fit: contain;
                             display: block;
-                            border-radius: 8px;
                          "
                          alt="${theme.name}">
                 </div>
             `;
+            
+            // Update features container to be more compact
+            dom.previewFeatures.style.fontSize = '0.8rem';
+            dom.previewFeatures.style.padding = '5px 0';
+            
+            // Make select button smaller
+            dom.selectFromPreview.style.fontSize = '0.9rem';
+            dom.selectFromPreview.style.padding = '8px 16px';
         };
         
         tempImg.onerror = function() {
@@ -474,34 +517,32 @@ function openImagePreview(theme) {
         
         tempImg.src = `assets/${theme.image}`;
         
-        // Show loading state
+        // Show compact loading state
         dom.previewImage.innerHTML = `
             <div style="
-                width: 200px;
-                height: 300px;
-                margin: 40px auto;
+                width: 250px;
+                height: 333px; /* 3:4 ratio */
+                margin: 15px auto;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
                 background: #f8f9fa;
-                border-radius: 16px;
-                gap: 20px;
-                padding: 30px;
-                box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+                border-radius: 12px;
+                gap: 15px;
+                border: 1px solid #e0e0e0;
             ">
                 <div style="
                     color: #3A8DFF;
-                    font-size: 2.5rem;
+                    font-size: 2rem;
                     animation: spin 1s linear infinite;
                 ">
                     <i class="fas fa-spinner"></i>
                 </div>
                 <p style="
                     margin: 0;
-                    color: #6c757d;
-                    font-size: 1.1rem;
-                    font-weight: 500;
+                    color: #666;
+                    font-size: 0.9rem;
                 ">
                     Loading preview...
                 </p>
@@ -523,11 +564,14 @@ function openImagePreview(theme) {
         showFallbackPreview(theme);
     }
 
-    // Update features
+    // Update features with compact styling
     dom.previewFeatures.innerHTML = '';
     theme.features.forEach(feature => {
         const featureEl = document.createElement('span');
         featureEl.className = 'preview-feature';
+        featureEl.style.fontSize = '0.8rem';
+        featureEl.style.padding = '4px 8px';
+        featureEl.style.margin = '2px 4px';
         featureEl.textContent = feature;
         dom.previewFeatures.appendChild(featureEl);
     });
@@ -540,31 +584,31 @@ function openImagePreview(theme) {
 function showFallbackPreview(theme) {
     dom.previewImage.innerHTML = `
         <div style="
-            width: 320px;
-            height: 420px;
-            margin: 30px auto;
+            width: 300px;
+            height: 400px; /* 3:4 ratio */
+            margin: 15px auto;
             background: ${theme.previewColor};
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
-            border-radius: 16px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-            padding: 30px;
-            border: 2px solid rgba(255,255,255,0.2);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
         ">
-            <div style="
-                text-align: center;
-                padding: 20px;
-            ">
-                ${theme.name}
-            </div>
+            ${theme.name}
         </div>
     `;
 }
+
+function closeImagePreview() {
+    currentState.isPreviewOpen = false;
+    dom.imagePreviewModal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
 // ============================================
 // FORM MANAGEMENT
 // ============================================
@@ -1039,7 +1083,7 @@ console.log(`
 📧 Email: yourbottleIndia@gmail.com
 📞 Phone: +91 6261491292
 ⭐ Rating: 9.3/10 Client Satisfaction
-🚀 Version: 2.3.0 (11 Themes with Auto-Sized Preview)
+🚀 Version: 2.3.0 (Compact Preview with 3:4 Ratio)
 ===================================================
 `,
 'color: #3A8DFF; font-weight: bold;'
