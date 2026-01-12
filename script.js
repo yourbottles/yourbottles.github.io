@@ -401,203 +401,154 @@ function createThemeCard(theme) {
 // ============================================
 // PREVIEW MODAL FUNCTIONS
 // ============================================
+// ============================================
+// PREVIEW MODAL FUNCTIONS - FIXED VERSION
+// ============================================
 function openImagePreview(theme) {
     if (!theme || !dom.imagePreviewModal) return;
 
     currentState.selectedTheme = theme;
     currentState.isPreviewOpen = true;
 
-    // Update preview content with normal text size
+    // Update preview content
     dom.previewTitle.textContent = `${theme.name} Preview`;
-    dom.previewTitle.style.fontSize = '';
-    dom.previewTitle.style.marginBottom = '';
-    
     dom.previewThemeName.textContent = theme.name;
-    dom.previewThemeName.style.fontSize = '';
-    dom.previewThemeName.style.color = '';
-    dom.previewThemeName.style.marginBottom = '';
-    
     dom.previewDescription.textContent = theme.description;
-    dom.previewDescription.style.fontSize = '';
-    dom.previewDescription.style.color = '';
-    dom.previewDescription.style.marginBottom = '';
 
     // Check if image is available
     const hasImage = currentState.availableImages[theme.id];
 
     if (hasImage) {
-        const tempImg = new Image();
-        tempImg.onload = function() {
-            const naturalWidth = this.naturalWidth;
-            const naturalHeight = this.naturalHeight;
-            
-            console.log(`📐 Image dimensions: ${naturalWidth}x${naturalHeight}`);
-            
-            // Calculate maximum viewport dimensions we can use (90% of viewport)
-            const maxViewportHeight = window.innerHeight * 0.90;
-            const maxViewportWidth = window.innerWidth * 0.90;
-            
-            // Start with original 411x1600 target
-            const targetWidth = 411;
-            const targetHeight = 1600;
-            
-            // If image is different size, use actual dimensions
-            const displayWidth = naturalWidth;
-            const displayHeight = naturalHeight;
-            
-            // Calculate scale to fit viewport
-            let scale = 1;
-            
-            // Scale based on height (tall images)
-            if (displayHeight > maxViewportHeight) {
-                scale = maxViewportHeight / displayHeight;
-            }
-            
-            // Also check width
-            const scaledWidth = displayWidth * scale;
-            if (scaledWidth > maxViewportWidth) {
-                scale = maxViewportWidth / displayWidth;
-            }
-            
-            // Apply minimum scale to ensure good visibility
-            const minScale = 0.7; // Minimum 70% of original
-            if (scale < minScale) {
-                scale = minScale;
-            }
-            
-            // Apply maximum scale if image is small
-            const maxScale = 2.0; // Maximum 200% of original
-            if (scale > maxScale) {
-                scale = maxScale;
-            }
-            
-            // Calculate final display dimensions
-            const finalWidth = displayWidth * scale;
-            const finalHeight = displayHeight * scale;
-            
-            console.log(`📏 Display at: ${finalWidth}x${finalHeight} (scale: ${scale.toFixed(2)})`);
-            
-            // Add generous padding around the image (40px on all sides)
-            const containerWidth = finalWidth + 80; // 40px left + 40px right
-            const containerHeight = finalHeight + 80; // 40px top + 40px bottom
-            
-            // Create preview container with LARGE image and generous padding
-            dom.previewImage.innerHTML = `
-                <div style="
-                    width: ${containerWidth}px;
-                    min-width: ${containerWidth}px;
-                    height: ${containerHeight}px;
-                    min-height: ${containerHeight}px;
-                    margin: 10px auto;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: transparent;
-                    border-radius: 20px;
-                    overflow: visible;
-                    padding: 40px;
-                    position: relative;
-                ">
-                    <div style="
-                        width: ${finalWidth}px;
-                        height: ${finalHeight}px;
-                        position: relative;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        border-radius: 15px;
-                        overflow: hidden;
-                        box-shadow: 0 15px 50px rgba(0,0,0,0.25);
-                        border: 3px solid #ffffff;
-                        background: white;
-                    ">
-                        <img src="assets/${theme.image}" 
-                             style="
-                                width: 100%;
-                                height: 100%;
-                                object-fit: contain;
-                                display: block;
-                             "
-                             alt="${theme.name}">
-                    </div>
-                </div>
-            `;
-            
-            // Reset styles for other elements
-            dom.previewFeatures.style.fontSize = '';
-            dom.previewFeatures.style.padding = '';
-            dom.selectFromPreview.style.fontSize = '';
-            dom.selectFromPreview.style.padding = '';
-        };
+        // Create a container with fixed aspect ratio (411:1600 ≈ 1:3.89)
+        const targetWidth = 411;  // Original width
+        const targetHeight = 1600; // Original height
+        const aspectRatio = targetWidth / targetHeight; // ≈ 0.2569
         
-        tempImg.onerror = function() {
-            console.log(`❌ Failed to load image: ${theme.image}`);
-            showFallbackPreview(theme);
-        };
+        // Calculate optimal display size based on viewport
+        const maxViewportHeight = window.innerHeight * 0.75; // 75% of viewport height
+        const maxViewportWidth = window.innerWidth * 0.90;  // 90% of viewport width
         
-        tempImg.src = `assets/${theme.image}`;
+        // Calculate dimensions based on aspect ratio
+        let displayWidth, displayHeight;
         
-        // Show large loading state
+        // First, try height-based calculation
+        displayHeight = Math.min(maxViewportHeight, targetHeight);
+        displayWidth = displayHeight * aspectRatio;
+        
+        // If width exceeds max width, use width-based calculation
+        if (displayWidth > maxViewportWidth) {
+            displayWidth = maxViewportWidth;
+            displayHeight = displayWidth / aspectRatio;
+        }
+        
+        // Ensure minimum size for visibility
+        const minWidth = 250;
+        const minHeight = minWidth / aspectRatio;
+        
+        if (displayWidth < minWidth) {
+            displayWidth = minWidth;
+            displayHeight = minHeight;
+        }
+        
+        console.log(`📏 Display size: ${Math.round(displayWidth)}x${Math.round(displayHeight)} (${Math.round((displayWidth/targetWidth)*100)}% of original)`);
+        
+        // Create preview with fixed aspect ratio container
         dom.previewImage.innerHTML = `
-            <div style="
-                width: 500px;
-                height: 800px;
-                margin: 10px auto;
+            <div class="preview-container" style="
+                width: ${displayWidth + 60}px;
+                max-width: 95vw;
+                height: ${displayHeight + 60}px;
+                max-height: 85vh;
+                margin: 20px auto;
                 display: flex;
-                flex-direction: column;
                 align-items: center;
                 justify-content: center;
                 background: #f5f7fa;
-                border-radius: 20px;
-                gap: 25px;
-                border: 3px dashed #3A8DFF;
-                padding: 40px;
+                border-radius: 15px;
+                padding: 30px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                border: 2px solid #e2e8f0;
             ">
-                <div style="
-                    color: #3A8DFF;
-                    font-size: 4rem;
-                    animation: spin 1s linear infinite;
+                <div class="preview-image-wrapper" style="
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: relative;
+                    overflow: hidden;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+                    border: 2px solid white;
+                    background: white;
                 ">
-                    <i class="fas fa-spinner"></i>
+                    <img src="assets/${theme.image}" 
+                         alt="${theme.name}"
+                         style="
+                            width: 100%;
+                            height: 100%;
+                            object-fit: contain;
+                            display: block;
+                         ">
+                    
+                    <!-- Dimension overlay -->
+                    <div class="dimension-overlay" style="
+                        position: absolute;
+                        bottom: 10px;
+                        right: 10px;
+                        background: rgba(0,0,0,0.7);
+                        color: white;
+                        padding: 5px 10px;
+                        border-radius: 4px;
+                        font-size: 0.8rem;
+                        font-weight: bold;
+                    ">
+                        ${targetWidth} × ${targetHeight}
+                    </div>
                 </div>
-                <p style="
-                    margin: 0;
-                    color: #3A8DFF;
-                    font-size: 1.3rem;
-                    font-weight: 600;
-                    text-align: center;
-                ">
-                    Loading your label design<br>
-                    <span style="font-size: 1rem; color: #666; font-weight: normal;">
-                        411 × 1600 pixels
-                    </span>
-                </p>
             </div>
         `;
-        
-        // Add spin animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        `;
-        document.head.appendChild(style);
-        
+
     } else {
-        console.log(`📭 Image not available: ${theme.image}`);
-        showFallbackPreview(theme);
+        // Fallback for missing image
+        const fallbackWidth = 300;
+        const fallbackHeight = fallbackWidth / (411/1600);
+        
+        dom.previewImage.innerHTML = `
+            <div class="preview-fallback" style="
+                width: ${fallbackWidth}px;
+                height: ${fallbackHeight}px;
+                margin: 30px auto;
+                background: ${theme.previewColor};
+                border-radius: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+                text-align: center;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                border: 2px solid rgba(255,255,255,0.3);
+                padding: 20px;
+            ">
+                <div>
+                    <div style="font-size: 1.2rem; margin-bottom: 10px;">${theme.name}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">
+                        411 × 1600 Label Preview
+                    </div>
+                    <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 10px;">
+                        (Image not available)
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
-    // Update features with normal styling
+    // Update features
     dom.previewFeatures.innerHTML = '';
     theme.features.forEach(feature => {
         const featureEl = document.createElement('span');
         featureEl.className = 'preview-feature';
-        featureEl.style.fontSize = '';
-        featureEl.style.padding = '';
-        featureEl.style.margin = '';
         featureEl.textContent = feature;
         dom.previewFeatures.appendChild(featureEl);
     });
@@ -605,76 +556,72 @@ function openImagePreview(theme) {
     // Show preview modal
     dom.imagePreviewModal.classList.add('active');
     document.body.style.overflow = 'hidden';
+    
+    // Add CSS for smooth image loading
+    const style = document.createElement('style');
+    style.textContent = `
+        .preview-container img {
+            transition: opacity 0.3s ease;
+        }
+        
+        .preview-container img[src] {
+            opacity: 1;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .preview-image-wrapper {
+            animation: fadeIn 0.5s ease;
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 function showFallbackPreview(theme) {
-    // Create a fallback at 411x1600 ratio
-    const targetWidth = 411;
-    const targetHeight = 1600;
-    
-    // Scale for viewport (90% max)
-    const maxViewportHeight = window.innerHeight * 0.90;
-    let scale = maxViewportHeight / targetHeight;
-    
-    // Ensure good scale range
-    if (scale < 0.7) scale = 0.7;
-    if (scale > 2.0) scale = 2.0;
-    
-    const displayWidth = targetWidth * scale;
-    const displayHeight = targetHeight * scale;
-    
-    // Add padding
-    const containerWidth = displayWidth + 80;
-    const containerHeight = displayHeight + 80;
+    const fallbackWidth = 300;
+    const fallbackHeight = fallbackWidth / (411/1600);
     
     dom.previewImage.innerHTML = `
         <div style="
-            width: ${containerWidth}px;
-            min-width: ${containerWidth}px;
-            height: ${containerHeight}px;
-            min-height: ${containerHeight}px;
-            margin: 10px auto;
+            width: ${fallbackWidth}px;
+            height: ${fallbackHeight}px;
+            margin: 30px auto;
+            background: ${theme.previewColor};
+            border-radius: 15px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: transparent;
-            border-radius: 20px;
-            padding: 40px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 20px;
+            gap: 15px;
         ">
+            <div style="font-size: 3rem; opacity: 0.8;">
+                <i class="fas fa-image"></i>
+            </div>
+            <div style="font-size: 1.2rem; font-weight: bold;">
+                ${theme.name}
+            </div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">
+                411 × 1600 Label
+            </div>
             <div style="
-                width: ${displayWidth}px;
-                height: ${displayHeight}px;
-                background: ${theme.previewColor};
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-size: 1.6rem;
-                font-weight: bold;
-                text-shadow: 2px 2px 10px rgba(0,0,0,0.6);
-                border-radius: 15px;
-                box-shadow: 0 15px 50px rgba(0,0,0,0.25);
-                border: 3px solid rgba(255,255,255,0.3);
-                text-align: center;
-                padding: 20px;
+                font-size: 0.8rem;
+                opacity: 0.7;
+                background: rgba(255,255,255,0.1);
+                padding: 5px 10px;
+                border-radius: 4px;
             ">
-                <div>
-                    ${theme.name}<br>
-                    <span style="font-size: 1rem; opacity: 0.9;">
-                        411 × 1600 Label Preview
-                    </span>
-                </div>
+                Preview image not available
             </div>
         </div>
     `;
 }
-
-function closeImagePreview() {
-    currentState.isPreviewOpen = false;
-    dom.imagePreviewModal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
-
 // ============================================
 // FORM MANAGEMENT
 // ============================================
