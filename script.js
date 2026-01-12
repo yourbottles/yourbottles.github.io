@@ -401,6 +401,9 @@ function createThemeCard(theme) {
 // ============================================
 // PREVIEW MODAL FUNCTIONS
 // ============================================
+// ============================================
+// PREVIEW MODAL FUNCTIONS
+// ============================================
 function openImagePreview(theme) {
     if (!theme || !dom.imagePreviewModal) return;
 
@@ -415,13 +418,16 @@ function openImagePreview(theme) {
     // Check if image is available
     const hasImage = currentState.availableImages[theme.id];
 
-    // Set preview image
+    // Set preview image with 411:1600 aspect ratio (bottle label ratio)
+    const aspectRatio = 1600 / 411; // Height / Width ≈ 3.89
+    const paddingTopPercentage = (100 / aspectRatio) + '%'; // 100 / 3.89 ≈ 25.7%
+
     dom.previewImage.innerHTML = `
         <div class="preview-image-content" style="
             background: ${hasImage ? `url('assets/${theme.image}')` : theme.previewColor};
             ${hasImage ? 'background-size: cover; background-position: center;' : ''}
             width: 100%;
-            padding-top: 133.33%;
+            padding-top: ${paddingTopPercentage};
             position: relative;
         ">
             ${!hasImage ? `
