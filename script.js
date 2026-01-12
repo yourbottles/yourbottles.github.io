@@ -422,7 +422,7 @@ function openImagePreview(theme) {
     dom.previewImage.innerHTML = `
         <div class="preview-image-content" style="
             background: ${hasImage ? `url('assets/${theme.image}')` : theme.previewColor};
-            ${hasImage ? 'background-size: cover; background-position: center;' : ''}
+   ${hasImage ? 'background-size: contain; background-repeat: no-repeat; background-position: center;' : ''}
             width: 100%;
             padding-top: ${paddingTopPercentage};
             position: relative;
