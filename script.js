@@ -398,7 +398,7 @@ function createThemeCard(theme) {
     return card;
 }
 
- // ============================================
+// ============================================
 // PREVIEW MODAL FUNCTIONS
 // ============================================
 function openImagePreview(theme) {
@@ -431,69 +431,85 @@ function openImagePreview(theme) {
             const naturalWidth = this.naturalWidth;
             const naturalHeight = this.naturalHeight;
             
-            // For 411x1600 images, we want to show them at a good size
-            // Let's calculate a comfortable display size
-            const targetWidth = 411;  // Your specified width
-            const targetHeight = 1600; // Your specified height
+            console.log(`📐 Image dimensions: ${naturalWidth}x${naturalHeight}`);
             
-            // Calculate maximum viewport dimensions we can use
-            const maxViewportHeight = window.innerHeight * 0.85; // 85% of viewport
-            const maxViewportWidth = window.innerWidth * 0.85;   // 85% of viewport
+            // Calculate maximum viewport dimensions we can use (90% of viewport)
+            const maxViewportHeight = window.innerHeight * 0.90;
+            const maxViewportWidth = window.innerWidth * 0.90;
             
-            // Calculate scale based on height (since images are tall)
-            let scale = 1; // Start with original size
+            // Start with original 411x1600 target
+            const targetWidth = 411;
+            const targetHeight = 1600;
             
-            // If image is taller than viewport, scale it down
-            if (targetHeight > maxViewportHeight) {
-                scale = maxViewportHeight / targetHeight;
+            // If image is different size, use actual dimensions
+            const displayWidth = naturalWidth;
+            const displayHeight = naturalHeight;
+            
+            // Calculate scale to fit viewport
+            let scale = 1;
+            
+            // Scale based on height (tall images)
+            if (displayHeight > maxViewportHeight) {
+                scale = maxViewportHeight / displayHeight;
             }
             
             // Also check width
-            const scaledWidth = targetWidth * scale;
+            const scaledWidth = displayWidth * scale;
             if (scaledWidth > maxViewportWidth) {
-                scale = maxViewportWidth / targetWidth;
+                scale = maxViewportWidth / displayWidth;
             }
             
             // Apply minimum scale to ensure good visibility
-            const minScale = 0.5; // Don't go smaller than 50%
+            const minScale = 0.7; // Minimum 70% of original
             if (scale < minScale) {
                 scale = minScale;
             }
             
+            // Apply maximum scale if image is small
+            const maxScale = 2.0; // Maximum 200% of original
+            if (scale > maxScale) {
+                scale = maxScale;
+            }
+            
             // Calculate final display dimensions
-            const displayWidth = targetWidth * scale;
-            const displayHeight = targetHeight * scale;
+            const finalWidth = displayWidth * scale;
+            const finalHeight = displayHeight * scale;
             
-            // Add padding around the image (30px on all sides)
-            const containerWidth = displayWidth + 60; // 30px left + 30px right
-            const containerHeight = displayHeight + 60; // 30px top + 30px bottom
+            console.log(`📏 Display at: ${finalWidth}x${finalHeight} (scale: ${scale.toFixed(2)})`);
             
-            // Create preview container with LARGE image and padding
+            // Add generous padding around the image (40px on all sides)
+            const containerWidth = finalWidth + 80; // 40px left + 40px right
+            const containerHeight = finalHeight + 80; // 40px top + 40px bottom
+            
+            // Create preview container with LARGE image and generous padding
             dom.previewImage.innerHTML = `
                 <div style="
                     width: ${containerWidth}px;
+                    min-width: ${containerWidth}px;
                     height: ${containerHeight}px;
-                    margin: 20px auto;
+                    min-height: ${containerHeight}px;
+                    margin: 10px auto;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     background: transparent;
-                    border-radius: 16px;
+                    border-radius: 20px;
                     overflow: visible;
-                    padding: 30px;
+                    padding: 40px;
                     position: relative;
                 ">
                     <div style="
-                        width: ${displayWidth}px;
-                        height: ${displayHeight}px;
+                        width: ${finalWidth}px;
+                        height: ${finalHeight}px;
                         position: relative;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        border-radius: 12px;
+                        border-radius: 15px;
                         overflow: hidden;
-                        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-                        border: 2px solid #fff;
+                        box-shadow: 0 15px 50px rgba(0,0,0,0.25);
+                        border: 3px solid #ffffff;
+                        background: white;
                     ">
                         <img src="assets/${theme.image}" 
                              style="
@@ -507,40 +523,39 @@ function openImagePreview(theme) {
                 </div>
             `;
             
-            // Update features container
+            // Reset styles for other elements
             dom.previewFeatures.style.fontSize = '';
             dom.previewFeatures.style.padding = '';
-            
-            // Make select button normal size
             dom.selectFromPreview.style.fontSize = '';
             dom.selectFromPreview.style.padding = '';
         };
         
         tempImg.onerror = function() {
-            // If image fails to load, show gradient fallback
+            console.log(`❌ Failed to load image: ${theme.image}`);
             showFallbackPreview(theme);
         };
         
         tempImg.src = `assets/${theme.image}`;
         
-        // Show loading state
+        // Show large loading state
         dom.previewImage.innerHTML = `
             <div style="
-                width: 350px;
-                height: 550px;
-                margin: 20px auto;
+                width: 500px;
+                height: 800px;
+                margin: 10px auto;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
                 background: #f5f7fa;
-                border-radius: 16px;
-                gap: 20px;
-                border: 2px dashed #3A8DFF;
+                border-radius: 20px;
+                gap: 25px;
+                border: 3px dashed #3A8DFF;
+                padding: 40px;
             ">
                 <div style="
                     color: #3A8DFF;
-                    font-size: 3rem;
+                    font-size: 4rem;
                     animation: spin 1s linear infinite;
                 ">
                     <i class="fas fa-spinner"></i>
@@ -548,10 +563,14 @@ function openImagePreview(theme) {
                 <p style="
                     margin: 0;
                     color: #3A8DFF;
-                    font-size: 1.1rem;
+                    font-size: 1.3rem;
                     font-weight: 600;
+                    text-align: center;
                 ">
-                    Loading your label preview...
+                    Loading your label design<br>
+                    <span style="font-size: 1rem; color: #666; font-weight: normal;">
+                        411 × 1600 pixels
+                    </span>
                 </p>
             </div>
         `;
@@ -567,7 +586,7 @@ function openImagePreview(theme) {
         document.head.appendChild(style);
         
     } else {
-        // Show gradient fallback at 411x1600 ratio
+        console.log(`📭 Image not available: ${theme.image}`);
         showFallbackPreview(theme);
     }
 
@@ -593,27 +612,34 @@ function showFallbackPreview(theme) {
     const targetWidth = 411;
     const targetHeight = 1600;
     
-    // Scale for viewport
-    const maxViewportHeight = window.innerHeight * 0.85;
+    // Scale for viewport (90% max)
+    const maxViewportHeight = window.innerHeight * 0.90;
     let scale = maxViewportHeight / targetHeight;
     
-    // Ensure minimum scale
-    if (scale < 0.5) scale = 0.5;
+    // Ensure good scale range
+    if (scale < 0.7) scale = 0.7;
+    if (scale > 2.0) scale = 2.0;
     
     const displayWidth = targetWidth * scale;
     const displayHeight = targetHeight * scale;
     
+    // Add padding
+    const containerWidth = displayWidth + 80;
+    const containerHeight = displayHeight + 80;
+    
     dom.previewImage.innerHTML = `
         <div style="
-            width: ${displayWidth + 60}px;
-            height: ${displayHeight + 60}px;
-            margin: 20px auto;
+            width: ${containerWidth}px;
+            min-width: ${containerWidth}px;
+            height: ${containerHeight}px;
+            min-height: ${containerHeight}px;
+            margin: 10px auto;
             display: flex;
             align-items: center;
             justify-content: center;
             background: transparent;
-            border-radius: 16px;
-            padding: 30px;
+            border-radius: 20px;
+            padding: 40px;
         ">
             <div style="
                 width: ${displayWidth}px;
@@ -623,19 +649,30 @@ function showFallbackPreview(theme) {
                 align-items: center;
                 justify-content: center;
                 color: white;
-                font-size: 1.4rem;
+                font-size: 1.6rem;
                 font-weight: bold;
-                text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
-                border-radius: 12px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-                border: 2px solid rgba(255,255,255,0.3);
+                text-shadow: 2px 2px 10px rgba(0,0,0,0.6);
+                border-radius: 15px;
+                box-shadow: 0 15px 50px rgba(0,0,0,0.25);
+                border: 3px solid rgba(255,255,255,0.3);
+                text-align: center;
+                padding: 20px;
             ">
-                <div style="text-align: center; padding: 20px;">
-                    ${theme.name}
+                <div>
+                    ${theme.name}<br>
+                    <span style="font-size: 1rem; opacity: 0.9;">
+                        411 × 1600 Label Preview
+                    </span>
                 </div>
             </div>
         </div>
     `;
+}
+
+function closeImagePreview() {
+    currentState.isPreviewOpen = false;
+    dom.imagePreviewModal.classList.remove('active');
+    document.body.style.overflow = 'auto';
 }
 
 // ============================================
@@ -678,7 +715,6 @@ function hideForm() {
         document.body.style.overflow = 'auto';
     }
 }
-
 // ============================================
 // EVENT HANDLERS
 // ============================================
@@ -1098,22 +1134,3 @@ window.addEventListener('online', () => {
 
 window.addEventListener('offline', () => {
     showOfflineIndicator();
-    showToast('Offline mode', 3000);
-});
-
-// ============================================
-// STARTUP LOG
-// ============================================
-console.log(`
-%c===================================================
-       BLUEPURE - CUSTOM LABELS PRODUCER
-===================================================
-📍 Location: Dubey Colony Padawa, Khandwa MP India
-📧 Email: yourbottleIndia@gmail.com
-📞 Phone: +91 6261491292
-⭐ Rating: 9.3/10 Client Satisfaction
-🚀 Version: 2.3.0 (Compact Preview with 3:4 Ratio)
-===================================================
-`,
-'color: #3A8DFF; font-weight: bold;'
-);
