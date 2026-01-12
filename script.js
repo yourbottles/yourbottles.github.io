@@ -401,6 +401,9 @@ function createThemeCard(theme) {
 // ============================================
 // PREVIEW MODAL FUNCTIONS
 // ============================================
+// ============================================
+// PREVIEW MODAL FUNCTIONS
+// ============================================
 function openImagePreview(theme) {
     if (!theme || !dom.imagePreviewModal) return;
 
@@ -422,20 +425,20 @@ function openImagePreview(theme) {
             const naturalWidth = this.naturalWidth;
             const naturalHeight = this.naturalHeight;
             
-            // Calculate maximum dimensions (70% of viewport for comfortable viewing)
-            const maxViewportWidth = window.innerWidth * 0.7;
-            const maxViewportHeight = window.innerHeight * 0.7;
+            // Calculate maximum dimensions (65% of viewport for comfortable viewing)
+            const maxViewportWidth = window.innerWidth * 0.65;
+            const maxViewportHeight = window.innerHeight * 0.65;
             
             // Calculate scale to fit within viewport
             const widthRatio = maxViewportWidth / naturalWidth;
             const heightRatio = maxViewportHeight / naturalHeight;
             const scale = Math.min(widthRatio, heightRatio, 1); // Don't scale up beyond 100%
             
-            // Calculate display dimensions
-            const displayWidth = naturalWidth * scale;
-            const displayHeight = naturalHeight * scale;
+            // Calculate display dimensions (add 40px padding inside container)
+            const displayWidth = (naturalWidth * scale) + 40; // Add padding
+            const displayHeight = (naturalHeight * scale) + 40; // Add padding
             
-            // Create preview container with exact image dimensions
+            // Create preview container with padding around image
             dom.previewImage.innerHTML = `
                 <div style="
                     width: ${displayWidth}px;
@@ -445,10 +448,11 @@ function openImagePreview(theme) {
                     align-items: center;
                     justify-content: center;
                     background: #f8f9fa;
-                    border-radius: 12px;
+                    border-radius: 16px;
                     overflow: hidden;
-                    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+                    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
                     border: 1px solid #e9ecef;
+                    padding: 20px;
                 ">
                     <img src="assets/${theme.image}" 
                          style="
@@ -456,6 +460,7 @@ function openImagePreview(theme) {
                             height: 100%;
                             object-fit: contain;
                             display: block;
+                            border-radius: 8px;
                          "
                          alt="${theme.name}">
                 </div>
@@ -480,12 +485,14 @@ function openImagePreview(theme) {
                 align-items: center;
                 justify-content: center;
                 background: #f8f9fa;
-                border-radius: 12px;
+                border-radius: 16px;
                 gap: 20px;
+                padding: 30px;
+                box-shadow: 0 8px 30px rgba(0,0,0,0.1);
             ">
                 <div style="
                     color: #3A8DFF;
-                    font-size: 2rem;
+                    font-size: 2.5rem;
                     animation: spin 1s linear infinite;
                 ">
                     <i class="fas fa-spinner"></i>
@@ -493,7 +500,8 @@ function openImagePreview(theme) {
                 <p style="
                     margin: 0;
                     color: #6c757d;
-                    font-size: 1rem;
+                    font-size: 1.1rem;
+                    font-weight: 500;
                 ">
                     Loading preview...
                 </p>
@@ -532,31 +540,31 @@ function openImagePreview(theme) {
 function showFallbackPreview(theme) {
     dom.previewImage.innerHTML = `
         <div style="
-            width: 300px;
-            height: 400px;
-            margin: 20px auto;
+            width: 320px;
+            height: 420px;
+            margin: 30px auto;
             background: ${theme.previewColor};
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            padding: 30px;
+            border: 2px solid rgba(255,255,255,0.2);
         ">
-            ${theme.name}
+            <div style="
+                text-align: center;
+                padding: 20px;
+            ">
+                ${theme.name}
+            </div>
         </div>
     `;
 }
-
-function closeImagePreview() {
-    currentState.isPreviewOpen = false;
-    dom.imagePreviewModal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
-
 // ============================================
 // FORM MANAGEMENT
 // ============================================
