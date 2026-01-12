@@ -415,25 +415,33 @@ function openImagePreview(theme) {
     // Check if image is available
     const hasImage = currentState.availableImages[theme.id];
 
-    // Set preview image with 411:1600 aspect ratio (bottle label ratio)
-    const aspectRatio = 1600 / 411; // Height / Width ≈ 3.89
-    const paddingTopPercentage = (100 / aspectRatio) + '%'; // 100 / 3.89 ≈ 25.7%
-
+    // Use <img> tag for better image control
     dom.previewImage.innerHTML = `
-        <div class="preview-image-content" style="
-            background: ${hasImage ? `url('assets/${theme.image}')` : theme.previewColor};
-   ${hasImage ? 'background-size: contain; background-repeat: no-repeat; background-position: center;' : ''}
+        <div style="
             width: 100%;
-            padding-top: ${paddingTopPercentage};
+            max-height: 70vh;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
         ">
-            ${!hasImage ? `
+            ${hasImage ? `
+            <img src="assets/${theme.image}" 
+                 style="
+                    max-width: 100%;
+                    max-height: 100%;
+                    object-fit: contain;
+                 "
+                 alt="${theme.name}">
+            ` : `
             <div style="
-                position: absolute;
-                top: 0;
-                left: 0;
                 width: 100%;
-                height: 100%;
+                height: 400px;
+                background: ${theme.previewColor};
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -441,10 +449,11 @@ function openImagePreview(theme) {
                 font-size: 1.2rem;
                 font-weight: bold;
                 text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                border-radius: 8px;
             ">
                 ${theme.name}
             </div>
-            ` : ''}
+            `}
         </div>
     `;
 
