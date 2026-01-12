@@ -401,9 +401,6 @@ function createThemeCard(theme) {
 // ============================================
 // PREVIEW MODAL FUNCTIONS
 // ============================================
-// ============================================
-// PREVIEW MODAL FUNCTIONS
-// ============================================
 function openImagePreview(theme) {
     if (!theme || !dom.imagePreviewModal) return;
 
